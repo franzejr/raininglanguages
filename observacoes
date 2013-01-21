@@ -1,0 +1,3 @@
+-nao requerir uma quantidade fixa de palavras geradas pelo automato, mas sim iterar uma certa quantidade de vezes
+
+-alterar a definição de Estado. agora terá 2 ponteiros pra estados e 2 chars, referentes aos respectivos caracteres de transição

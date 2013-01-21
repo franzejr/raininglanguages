@@ -1,0 +1,183 @@
+#include <string>
+#include <vector>
+#include <unistd.h>
+#include <cstdio>
+#include <regex>
+#include "Automato.h"
+
+using namespace std;
+
+typedef struct Palavra
+{
+	string palavra;
+	double x,y;
+	bool isValid;
+}Palavra;
+
+vector<Palavra> palavras_da_regex, palavras_do_automato;
+
+////////////////////
+string gerar_palavra_regex()
+{
+	if (palavrasDaRegex.size() == 0) return "E";
+	int aleatorio = rand() % palavrasDaRegex.size();
+	
+	int i = 0;
+	for (std::set<string>::iterator it=palavrasDaRegex.begin(); it!=palavrasDaRegex.end(); ++it){
+		if( i == aleatorio) return *it;
+		
+		i++;
+	}
+
+}
+
+string gerar_palavra_automato()
+{
+	return automato->getPalavra();
+}
+
+bool palavra_pertence_ao_automato(string palavra)
+{
+	return automato->palavraPertence(palavra);
+}
+
+bool palavra_pertence_a_regex(string palavra)
+{
+	string regex_dada = regexDoUsuario;
+	regex minha_regex = regex(regex_dada);
+	if(palavra == "E") return regex_match ("", minha_regex);	
+	return regex_match (palavra, minha_regex);
+}
+///////////////////
+
+void drawText(string message, double x, double y, bool isValid)
+{
+	char* message_pointer = (char*)message.c_str();
+	
+	if (isValid) glColor3f(1.0,1.0,1.0);
+	else glColor3f(1.0,0.2,0.2);
+	
+	glRasterPos2d(x, y);
+	
+	while (*message_pointer != '\0') glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *(message_pointer++));
+}
+
+int i;
+static double proximo_x_regex=0.0, proximo_y_regex=1.0, proximo_x_automato=1.0, proximo_y_automato=1.0;
+
+void display()
+{
+	//Se a regex antiga for diferente da atual, entao tem que apagar a tela e comecar a imprimir a nova
+	if(regexDoUsuario.compare(oldRegexDoUsuario) != 0){
+		palavras_da_regex.clear();
+		proximo_x_regex = 0.0; proximo_y_regex = 1.0;
+		oldRegexDoUsuario.assign(regexDoUsuario);
+	}
+	
+	if (old_qtd_estados != qtd_estados)
+	{
+		palavras_do_automato.clear();
+		proximo_x_automato = 1.0; proximo_y_automato = 1.0;
+		for (int i=0; i<automato->qtdEstados; i++) free(automato->estados.at(i));
+		automato->estados.clear();
+		automato->palavrasDoAutomato.clear();
+		free(automato);
+		automato = new Automato(qtd_estados);
+		old_qtd_estados = qtd_estados;
+	}
+	glClear(GL_COLOR_BUFFER_BIT);
+	
+	glColor3f(1.0,1.0,1.0);
+	glBegin(GL_LINE_STRIP);
+
+		glVertex2f(1,1);
+		glVertex2f(1,0);
+
+	glEnd();
+	
+	for (i=0; i<palavras_da_regex.size(); i++)
+	{
+		drawText(palavras_da_regex[i].palavra, palavras_da_regex[i].x, palavras_da_regex[i].y, palavras_da_regex[i].isValid);
+	}
+	
+	for (i=0; i<palavras_do_automato.size(); i++)
+	{
+		drawText(palavras_do_automato[i].palavra, palavras_do_automato[i].x, palavras_do_automato[i].y, palavras_do_automato[i].isValid);
+	}
+	
+	glFlush();
+	usleep(16667);
+}
+
+#define DECREMENTO_DE_H 0.005
+
+string nova_string;
+Palavra nova_palavra;
+
+void animate()
+{
+	/* According to the GLUT specification, the current window is
+	undefined during an idle callback.  So we need to explicitly change
+	it if necessary */
+	if ( glutGetWindow() != main_window ) glutSetWindow(main_window);
+	///////////////////////////////////////////////////////////////////
+	
+	if (!paused)
+	{
+		for (i=0; i<palavras_da_regex.size(); i++)
+		{
+			palavras_da_regex[i].isValid = palavra_pertence_ao_automato(palavras_da_regex[i].palavra);
+			palavras_da_regex[i].y = palavras_da_regex[i].y - DECREMENTO_DE_H;
+			if (palavras_da_regex[i].y < -0.03) palavras_da_regex.erase(palavras_da_regex.begin()+i);
+		
+		}
+	
+		for (i=0; i<palavras_do_automato.size(); i++)
+		{
+			palavras_do_automato[i].isValid = palavra_pertence_a_regex(palavras_do_automato[i].palavra);
+			palavras_do_automato[i].y = palavras_do_automato[i].y - DECREMENTO_DE_H;
+			if (palavras_do_automato[i].y < -0.03) palavras_do_automato.erase(palavras_do_automato.begin()+i);
+		}
+	
+		proximo_y_regex = proximo_y_regex - DECREMENTO_DE_H;
+		proximo_y_automato = proximo_y_automato - DECREMENTO_DE_H;
+	
+		while (palavras_da_regex.size() < 1000)
+		{
+			nova_string = gerar_palavra_regex();
+			if ((nova_string.size()+1)*0.02 + proximo_x_regex > 1.0)
+			{
+				proximo_y_regex = proximo_y_regex + 0.025;
+				proximo_x_regex = 0.0;
+			}
+		
+			nova_palavra.palavra = nova_string;
+			nova_palavra.x = proximo_x_regex;
+			nova_palavra.y = proximo_y_regex;
+			nova_palavra.isValid = palavra_pertence_ao_automato(nova_string);
+			palavras_da_regex.push_back(nova_palavra);
+		
+			proximo_x_regex = proximo_x_regex + (nova_string.size()+1)*0.02;
+		}
+	
+		while (palavras_do_automato.size() < 1000)
+		{
+			nova_string = gerar_palavra_automato();
+			if ((nova_string.size()+1)*0.02 + proximo_x_automato > 2.0)
+			{
+				proximo_y_automato = proximo_y_automato + 0.025;
+				proximo_x_automato = 1.0;
+			}
+		
+			nova_palavra.palavra = nova_string;
+			nova_palavra.x = proximo_x_automato;
+			nova_palavra.y = proximo_y_automato;
+			nova_palavra.isValid = palavra_pertence_a_regex(nova_string);
+			palavras_do_automato.push_back(nova_palavra);
+		
+			proximo_x_automato = proximo_x_automato + (nova_string.size()+1)*0.02;
+		}
+
+		glutPostRedisplay();
+	}
+}
