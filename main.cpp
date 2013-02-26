@@ -9,6 +9,8 @@
 #include "Importer.h"
 #include <regex>
 
+using namespace std;
+
 int main_window, paused, qtd_estados, old_qtd_estados;
 
 Automato *automato = NULL;
@@ -19,10 +21,13 @@ Importer *importer = new Importer();
 
 set<string> palavrasDaRegex;
 
-std::string text;
+string text;
 
-std::string regexDoUsuario;
-std::string oldRegexDoUsuario;
+string regexDoUsuario;
+string oldRegexDoUsuario;
+
+bool palavra_pertence_ao_automato(string);
+bool palavra_pertence_a_regex(string);
 
 void getRegex(int control)
 { 
@@ -32,7 +37,7 @@ void getRegex(int control)
 	string regexDada = edittext->get_text();
 	regexDoUsuario = regexDada;
 	
-	if (regexDada.size()==0) return;
+	if (regexDada.size()==0 || regexDada == "Q") return;
 	
 	importer->gerarArquivoComPalavras(regexDada);
 	
@@ -44,6 +49,20 @@ void getRegex(int control)
 	}
 	
 	palavrasDaRegex = importer->getPalavras("strings");
+	
+	double perc_regex, perc_aut;
+	int count;
+	
+	count = 0;
+	for (set<string>::iterator it=palavrasDaRegex.begin(); it!=palavrasDaRegex.end(); ++it) if( palavra_pertence_ao_automato(*it) ) count++;
+	perc_regex = (double)(count)*100.0/(double)(palavrasDaRegex.size());
+	
+	count = 0;
+	for (set<string>::iterator it=automato->palavrasDoAutomato.begin(); it!=automato->palavrasDoAutomato.end(); ++it) if( palavra_pertence_a_regex(*it) ) count++;
+	perc_aut = (double)(count)*100.0/(double)(automato->palavrasDoAutomato.size());
+	
+	printf("%s | %.2lf | %.2lf\n", regexDada.c_str(), perc_regex, perc_aut);
+	
 }
 
 #include "draw"
@@ -66,8 +85,34 @@ void init()
 
 /**************************************** main() ********************/
 
+void imprimir_help()
+{
+	char word[55], i;
+	FILE *help = fopen("help", "r");
+	while(1)
+	{
+		
+		fscanf(help,"%s",word);
+		if (word[strlen(word)-1] == '#')
+		{
+			for (i = 0; i<strlen(word)-1; i++) printf("%c",word[i]);
+			printf("\n");
+		}
+		else if (word[strlen(word)-1] == '@') break;
+		else printf("%s ",word);		
+	}
+}
+
 int main(int argc, char* argv[])
 {
+	int a;
+	do
+	{
+		system("clear");
+		imprimir_help();
+		printf("continuar? (1 para sim) "); scanf("%d", &a);
+	}while(a != 1);
+
 	paused=0;
 	qtd_estados=2;
 	old_qtd_estados=2;
@@ -100,7 +145,7 @@ int main(int argc, char* argv[])
 	glui->set_main_gfx_window( main_window );
 
 	/* We register the idle callback with GLUI, *not* with GLUT */
-	GLUI_Master.set_glutIdleFunc( animate ); 
+	GLUI_Master.set_glutIdleFunc( animate );
 
 	glutMainLoop();
 

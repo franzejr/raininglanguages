@@ -1,0 +1,19 @@
+-Objetivo: Deduzir a expressao regular do automato gerado pelo jogo;#
+-O jogador pode escolher a quantidade de estados do automato criado;#
+-Na esquerda caem palavras da expressao regular do usuario;#
+--Palavras brancas sao aceitas pelo automato. Vermelhas nao;#
+-Na direita, palavras do automato;#
+--Palavras brancas sao produzidas pela expressao regular. Vermelhas nao;#
+-O jogador dispoe de um historico de suas tentativas que mostra dois valores:#
+--Um percentual aproximado das palavras da expr. reg. aceitas pelo automato;#
+--Um percentual aproximado das palavras do automato aceitas pela expr. reg.;#
+#
+-O alfabeto eh composto apenas pelos simbolos 'a' e 'b';#
+-Parentisacao feita com os proprios parenteses;#
+-O operador de concatenacao eh omitido;#
+-Operador da estrela de Kleene: *;#
+-Operador da uniao: |;#
+#
+-Mais operadores em http://www.regular-expressions.info/reference.html#
+-Conversor de expressao regular para automato em http://www.regexper.com/#
+@

@@ -5,8 +5,6 @@
 #include <regex>
 #include "Automato.h"
 
-using namespace std;
-
 typedef struct Palavra
 {
 	string palavra;
@@ -19,16 +17,16 @@ vector<Palavra> palavras_da_regex, palavras_do_automato;
 ////////////////////
 string gerar_palavra_regex()
 {
-	if (palavrasDaRegex.size() == 0) return "E";
+	if (regexDoUsuario.size() == 0) return "E";
+	if (regexDoUsuario == "Q") return " ";
 	int aleatorio = rand() % palavrasDaRegex.size();
-	
+
 	int i = 0;
-	for (std::set<string>::iterator it=palavrasDaRegex.begin(); it!=palavrasDaRegex.end(); ++it){
+	for (set<string>::iterator it=palavrasDaRegex.begin(); it!=palavrasDaRegex.end(); ++it)
+	{
 		if( i == aleatorio) return *it;
-		
 		i++;
 	}
-
 }
 
 string gerar_palavra_automato()
@@ -97,12 +95,12 @@ void display()
 	
 	for (i=0; i<palavras_da_regex.size(); i++)
 	{
-		drawText(palavras_da_regex[i].palavra, palavras_da_regex[i].x, palavras_da_regex[i].y, palavras_da_regex[i].isValid);
+		if (palavras_da_regex[i].y < 1.03 ) drawText(palavras_da_regex[i].palavra, palavras_da_regex[i].x, palavras_da_regex[i].y, palavras_da_regex[i].isValid);
 	}
 	
 	for (i=0; i<palavras_do_automato.size(); i++)
 	{
-		drawText(palavras_do_automato[i].palavra, palavras_do_automato[i].x, palavras_do_automato[i].y, palavras_do_automato[i].isValid);
+		if (palavras_do_automato[i].y < 1.03 ) drawText(palavras_do_automato[i].palavra, palavras_do_automato[i].x, palavras_do_automato[i].y, palavras_do_automato[i].isValid);
 	}
 	
 	glFlush();
@@ -126,7 +124,7 @@ void animate()
 	{
 		for (i=0; i<palavras_da_regex.size(); i++)
 		{
-			palavras_da_regex[i].isValid = palavra_pertence_ao_automato(palavras_da_regex[i].palavra);
+			if (palavras_da_regex[i].y < 1.03) palavras_da_regex[i].isValid = palavra_pertence_ao_automato(palavras_da_regex[i].palavra);
 			palavras_da_regex[i].y = palavras_da_regex[i].y - DECREMENTO_DE_H;
 			if (palavras_da_regex[i].y < -0.03) palavras_da_regex.erase(palavras_da_regex.begin()+i);
 		
@@ -134,7 +132,7 @@ void animate()
 	
 		for (i=0; i<palavras_do_automato.size(); i++)
 		{
-			palavras_do_automato[i].isValid = palavra_pertence_a_regex(palavras_do_automato[i].palavra);
+			if (palavras_do_automato[i].y < 1.03) palavras_do_automato[i].isValid = palavra_pertence_a_regex(palavras_do_automato[i].palavra);
 			palavras_do_automato[i].y = palavras_do_automato[i].y - DECREMENTO_DE_H;
 			if (palavras_do_automato[i].y < -0.03) palavras_do_automato.erase(palavras_do_automato.begin()+i);
 		}

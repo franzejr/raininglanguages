@@ -27,7 +27,6 @@ Automato::Automato(int qtdEstados) : qtdEstados(qtdEstados){
 		estados.push_back(new Estado());
 	}
 	int x = rand()%qtdEstados;
-	printf("estado final: %d\n",x);
 	estados.at(x)->isFinal = 1;
 	
 	bool isFinal;
@@ -58,7 +57,9 @@ Automato::Automato(int qtdEstados) : qtdEstados(qtdEstados){
 		estados.at(i)->vizinho2 = estados.at(indiceRandom);
 		estados.at(i)->letraDeTransicao2 = simbolos[1];
 	}
-	printf("#####################################################\n");
+	printf("#####################################################\n\n");
+	
+	printf("regex | %% regex pertence ao automato | %% automato pertence a regex\n");
 	
 	//Colocando as 5000 palavras dentro do conjunto de palavras que o automato retorna
 	for (int i=0; i<5000; i++) palavrasDoAutomato.insert(getPalavra());
@@ -123,7 +124,8 @@ string Automato::getPalavra(){
 //
 bool Automato::palavraPertence(string palavra)
 {
-	if (palavra == "E" && estados.at(0)->isFinal) return true;
+	if (palavra == "E") return estados.at(0)->isFinal;
+	
 	Estado *estadoAtual = estados.at(0);
 	char *letra = &(palavra.at(0));
 	int count = 0;
